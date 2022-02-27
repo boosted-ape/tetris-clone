@@ -4,4 +4,6 @@ import {createStage} from '../gamehelpers';
 
 export const useStage = () => {
     const [stage, setStage] = useStage(createStage());
+
+    return [stage, setStage];
 }
