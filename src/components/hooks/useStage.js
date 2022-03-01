@@ -1,33 +1,33 @@
-import { useEffect, useState } from 'react';
-
-import {createStage} from '../../gameHelpers';
+import { useState, useEffect } from 'react';
+import { createStage } from '../../gameHelpers';
 
 export const useStage = (player, resetPlayer) => {
-    const [stage, setStage] = useState(createStage());
+  const [stage, setStage] = useState(createStage());
 
-    useEffect(() => {
-        const updateStage = prevStage => {
-            //flush the stage
-            const newStage = prevStage.map(row =>
-                row.map(cell => (cell[1] === 'clear' ? [0, 'clear'] : cell)),
-            );
+  useEffect(() => {
+    const updateStage = prevStage => {
+      // First flush the stage
+      const newStage = prevStage.map(row =>
+        row.map(cell => (cell[1] === 'clear' ? [0, 'clear'] : cell)),
+      );
 
-            player.tetromino.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0){
-                        newStage[y + player.pos.y][x + player.pos.x] = [
-                            value,
-                            `${player.collided ? "merged" : "clear"}`,
-                        ];
-                    }
-                });
-            });
+      // Then draw the tetromino
+      player.tetromino.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value !== 0) {
+            newStage[y + player.pos.y][x + player.pos.x] = [
+              value,
+              `${player.collided ? 'merged' : 'clear'}`,
+            ];
+          }
+        });
+      });
 
-            return newStage;
-            
-        };
+      return newStage;
+    };
 
-        setStage( prev => updateStage(prev));
-    }, [player.collided, player.pos.x, player.pos.y, player.tetriomino]);
-    return [stage, setStage];
-}
+    setStage(prev => updateStage(prev));
+  }, [player]);
+
+  return [stage, setStage];
+};
