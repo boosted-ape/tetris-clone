@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 
+
+
 export const useTetris = (canvasRef) => {
 
     useEffect(() => {
@@ -31,8 +33,17 @@ export const useTetris = (canvasRef) => {
             pos: {x: 5, y: 5},
             matrix: matrix,
         }
+        
+        function draw(){
+            drawMatrix(player.matrix, player.pos);
+        }
 
-        drawMatrix(player.matrix, player.pos)
+        function update(time = 0){
+            console.log(time);
+            draw();
+            requestAnimationFrame(update);
+        }
 
+        update();
     });
 }

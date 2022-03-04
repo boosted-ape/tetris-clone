@@ -5,14 +5,10 @@ import { useTetris } from "./useTetris";
 const Tetris = (props) => {
 
     const canvasRef = useRef(null);
+
     useTetris(canvasRef);
-
-
-    return(
-        <>    
-            <canvas ref={canvasRef} width="240" height="400"/>
-            <script src="tetrisgame.js"></script>
-        </>
+    return(   
+            <canvas ref={canvasRef} {...props} width="240" height="400"/>
     );
 }
 
