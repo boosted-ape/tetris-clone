@@ -1,9 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 
 
-export const useTetris = (canvasRef) => {
+export const useTetris = ( keyCode, drawMatrix) => {
 
+    const matrix = [
+        [0, 0, 0],
+        [1, 1, 1],
+        [0, 1, 0],
+    ];
+
+    
+    const player = {
+        pos: {x: 5, y: 5},
+        matrix: matrix,
+    }
+    
+    const canvasRef = useRef(null);
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
@@ -11,39 +24,35 @@ export const useTetris = (canvasRef) => {
         context.fillStyle = '#000';
         context.fillRect(0, 0, 240, 400);
 
-        const matrix = [
-            [0, 0, 0],
-            [1, 1, 1],
-            [0, 1, 0],
-        ];
+
 
         context.scale(20, 20);
 
-        function drawMatrix(matrix, offset) {
-            matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        context.fillStyle = 'red';
-                        context.fillRect(x + offset.x, y + offset.y, 1, 1);
-                    }
-                });
-            });
-        };
-        const player = {
-            pos: {x: 5, y: 5},
-            matrix: matrix,
-        }
-        
+
         function draw(){
-            drawMatrix(player.matrix, player.pos);
+            context.fillStyle = '#000';
+            context.fillRect(0, 0, 240, 400);
+            drawMatrix(context, player.matrix, player.pos);
         }
 
+        let lastTime = 0;
+        let dropInterval = 1000;
+        let dropCounter = 0;
+
         function update(time = 0){
-            console.log(time);
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval){
+                player.pos.y++;
+                dropCounter = 0;
+            }
             draw();
             requestAnimationFrame(update);
         }
 
         update();
     });
+
+    return canvasRef;
 }

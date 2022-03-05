@@ -1,14 +1,15 @@
-import React, { useRef } from "react";
+import React from "react";
 
 import { useTetris } from "./useTetris";
 
 const Tetris = (props) => {
 
-    const canvasRef = useRef(null);
+    const { draw, keyCode, ...rest} = props;
 
-    useTetris(canvasRef);
+
+    let canvasRef = useTetris(keyCode, draw);
     return(   
-            <canvas ref={canvasRef} {...props} width="240" height="400"/>
+            <canvas ref={canvasRef} {...rest} width="240" height="400"/>
     );
 }
 
