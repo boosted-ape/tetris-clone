@@ -4,12 +4,12 @@ import { useTetris } from "./useTetris";
 
 const Tetris = (props) => {
 
-    const { draw, keyCode, ...rest} = props;
+    const { draw, ...rest } = props;
 
 
-    let canvasRef = useTetris(keyCode, draw);
-    return(   
-            <canvas ref={canvasRef} {...rest} width="240" height="400"/>
+    let canvasRef = useTetris(draw);
+    return (
+        <canvas ref={canvasRef} {...rest} width="240" height="400" />
     );
 }
 

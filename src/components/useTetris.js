@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 
 
-export const useTetris = ( keyCode, drawMatrix) => {
+export const useTetris = ( drawMatrix) => {
 
     const matrix = [
         [0, 0, 0],
@@ -10,12 +10,13 @@ export const useTetris = ( keyCode, drawMatrix) => {
         [0, 1, 0],
     ];
 
-    
+
     const player = {
         pos: {x: 5, y: 5},
         matrix: matrix,
     }
     
+
     const canvasRef = useRef(null);
     useEffect(() => {
         const canvas = canvasRef.current;
