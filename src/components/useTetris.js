@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 
 
-export const useTetris = ( drawMatrix) => {
+export const useTetris = ( drawMatrix, keyCode) => {
 
     const matrix = [
         [0, 0, 0],
