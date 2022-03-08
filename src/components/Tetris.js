@@ -1,15 +1,20 @@
-import React from "react";
+import React, {useState} from "react";
 
 import { useTetris } from "./useTetris";
 
 const Tetris = (props) => {
 
-    const { draw, keyCode, ...rest } = props;
+    const { draw, ...rest } = props;
 
+    let event = null;
 
-    let canvasRef = useTetris(draw, keyCode);
+    let [canvasRef, move] = useTetris(draw, event);
+    
     return (
-        <canvas ref={canvasRef} {...rest} width="240" height="400" />
+        <canvas ref={canvasRef}       
+        tabIndex="0" 
+        onKeyDown={(e) => move(e)}
+        width="240" height="400" />
     );
 }
 

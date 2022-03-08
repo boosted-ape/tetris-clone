@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 
 
-export const useTetris = ( drawMatrix, keyCode) => {
+export const useTetris = ( drawMatrix, event) => {
 
     const matrix = [
         [0, 0, 0],
@@ -16,6 +16,24 @@ export const useTetris = ( drawMatrix, keyCode) => {
         matrix: matrix,
     }
     
+    function move({keyCode}) {
+        if (keyCode === 37){
+            player.pos.x--;
+            console.log(player.pos);
+        }
+        if (keyCode === 39){
+            player.pos.x++;
+            console.log(player.pos);
+        }
+        if (keyCode === 40){
+            player.pos.y++;
+            console.log(player.pos);
+            dropCounter = 0
+        }
+    }
+    let lastTime = 0;
+    let dropInterval = 1000;
+    let dropCounter = 0;
 
     const canvasRef = useRef(null);
     useEffect(() => {
@@ -24,7 +42,6 @@ export const useTetris = ( drawMatrix, keyCode) => {
 
         context.fillStyle = '#000';
         context.fillRect(0, 0, 240, 400);
-
 
 
         context.scale(20, 20);
@@ -36,9 +53,7 @@ export const useTetris = ( drawMatrix, keyCode) => {
             drawMatrix(context, player.matrix, player.pos);
         }
 
-        let lastTime = 0;
-        let dropInterval = 1000;
-        let dropCounter = 0;
+
 
         function update(time = 0){
             const deltaTime = time - lastTime;
@@ -55,5 +70,5 @@ export const useTetris = ( drawMatrix, keyCode) => {
         update();
     });
 
-    return canvasRef;
+    return [canvasRef, move];
 }

@@ -15,18 +15,10 @@ const App = () => {
     });
   };
 
-  let keyCode = 0;
-
-  const keyInput = (input) => {
-    keyCode = input;
-  }
 
   return (
     <div className="App">
-      <Tetris draw={drawMatrix} 
-      tabIndex="0" 
-      onKeyDown={(e) => keyInput(e.keyCode)}
-      keyCode={keyCode} />
+      <Tetris draw={drawMatrix} />
     </div>);
 }
 export default App;
