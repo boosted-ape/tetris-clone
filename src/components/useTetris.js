@@ -115,6 +115,11 @@ export const useTetris = (drawMatrix, event) => {
             dropCounter += deltaTime;
             if (dropCounter > dropInterval) {
                 player.pos.y++;
+                if(collide(arena, player)){
+                    player.pos.y--;
+                    merge(arena, player);
+                    player.pos.y = 0;
+                }
                 dropCounter = 0;
             }
             draw();
