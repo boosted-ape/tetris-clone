@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 
 
-export const useTetris = (drawMatrix, event) => {
+export const useTetris = (drawMatrix) => {
 
     const matrix = [
         [0, 0, 0],
@@ -24,6 +24,29 @@ export const useTetris = (drawMatrix, event) => {
         return false;
     }
 
+    const playerRotate = (player, dir) => {
+        rotate(player.matrix, dir);
+    }
+    
+    const rotate = (m, dir) => {
+        for (let y = 0; y < m.length; y++){
+            for(let x = 0; x < y; x++){
+                [
+                    m[x][y],
+                    m[y][x],
+                ] =
+                [
+                    m[y][x],
+                    m[x][y],
+                ];
+            }
+        }
+        if (dir > 0){
+            m.forEach(row => row.reverse());
+        } else {
+            m.reverse();
+        }
+    }
 
     const createMatrix = (width, height) => {
         const matrix = [];
@@ -35,8 +58,7 @@ export const useTetris = (drawMatrix, event) => {
     }
 
     const arena = createMatrix(12, 20);
-    console.log(arena);
-    console.table(arena);
+
 
     const merge = (arena, player) => {
         player.matrix.forEach((row, y) => {
@@ -60,7 +82,6 @@ export const useTetris = (drawMatrix, event) => {
             merge(arena, player);
             player.pos.y = 0;
         }
-        console.table(arena);
         dropCounter = 0;
     }
 
@@ -74,14 +95,18 @@ export const useTetris = (drawMatrix, event) => {
     function move({ keyCode }) {
         if (keyCode === 37) {
             movePlayer(-1);
-            console.table(arena);
         }
         if (keyCode === 39) {
             movePlayer(1);
-            console.table(arena);
         }
         if (keyCode === 40) {
             playerDrop();
+        }
+        if (keyCode === 81) {
+            playerRotate(player, -1);
+        }
+        if (keyCode === 87) {
+            playerRotate(player, 1);
         }
     }
     let lastTime = 0;
