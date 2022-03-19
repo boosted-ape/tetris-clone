@@ -26,11 +26,19 @@ export const useTetris = (drawMatrix) => {
 
     const playerRotate = (player, dir) => {
         rotate(player.matrix, dir);
+        if (collide(arena, player)){
+            rotate(player.matrix, -dir);
+            merge(arena, player);
+            player.pos.y = 0;
+        }
+        
     }
     
     const rotate = (m, dir) => {
         for (let y = 0; y < m.length; y++){
             for(let x = 0; x < y; x++){
+                console.log(y);
+                console.log(x);
                 [
                     m[x][y],
                     m[y][x],
