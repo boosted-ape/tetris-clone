@@ -26,6 +26,15 @@ export const useTetris = (drawMatrix) => {
 
     const playerRotate = (player, dir) => {
         rotate(player.matrix, dir);
+        let offset = 1;
+        while(collide(arena, player)){
+            player.pos.x += offset;
+            offset = -(offset +(offset > 0 ? 1 : -1));
+            if (offset > player.matrix[0].length) {
+                rotate(player.matrix, -dir);
+                return;
+            }
+        }
     }
     
     const rotate = (m, dir) => {
