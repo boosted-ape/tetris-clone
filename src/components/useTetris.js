@@ -10,6 +10,54 @@ export const useTetris = (drawMatrix) => {
         [0, 1, 0],
     ];
 
+    const pieces = "ILJSZOT";
+
+    const createPiece = (type) => {
+        if (type === 'I') {
+            return [
+                [0, 0, 0, 0],
+                [1, 1, 1, 1],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+            ];
+        } else if (type === 'L') {
+            return [
+                [0, 0, 2],
+                [2, 2, 2],
+                [0, 0, 0],
+            ];
+        } else if (type === 'J') {
+            return [
+                [3, 0, 0],
+                [3, 3, 3],
+                [0, 0, 0],
+            ];
+        } else if (type === 'O') {
+            return [
+                [4, 4],
+                [4, 4],
+            ];
+        } else if (type === 'Z') {
+            return [
+                [5, 5, 0],
+                [0, 5, 5],
+                [0, 0, 0],
+            ];
+        } else if (type === 'S') {
+            return [
+                [0, 6, 6],
+                [6, 6, 0],
+                [0, 0, 0],
+            ];
+        } else if (type === 'T') {
+            return [
+                [0, 7, 0],
+                [7, 7, 7],
+                [0, 0, 0],
+            ];
+        }
+    }
+
     function collide(arena, player) {
         const [m, o] = [player.matrix, player.pos];
         for (let y = 0; y < m.length; y++) {
@@ -81,7 +129,7 @@ export const useTetris = (drawMatrix) => {
 
     const player = {
         pos: { x: 5, y: 5 },
-        matrix: matrix,
+        matrix: createPiece(pieces[Math.floor(pieces.length * Math.random())]),
     }
 
     function playerDrop(){
@@ -91,6 +139,16 @@ export const useTetris = (drawMatrix) => {
             merge(arena, player);
             player.pos.y = 0;
         }
+        dropCounter = 0;
+    }
+
+    function playerHardDrop(){
+        while(!collide(arena, player)){
+            player.pos.y++;
+        }
+        player.pos.y--;
+        merge(arena, player);
+        player.pos.y = 0;
         dropCounter = 0;
     }
 
@@ -116,6 +174,9 @@ export const useTetris = (drawMatrix) => {
         }
         if (keyCode === 87) {
             playerRotate(player, 1);
+        }
+        if (keyCode === 32) {
+            playerHardDrop();
         }
     }
     let lastTime = 0;
@@ -148,13 +209,7 @@ export const useTetris = (drawMatrix) => {
             lastTime = time;
             dropCounter += deltaTime;
             if (dropCounter > dropInterval) {
-                player.pos.y++;
-                if(collide(arena, player)){
-                    player.pos.y--;
-                    merge(arena, player);
-                    player.pos.y = 0;
-                }
-                dropCounter = 0;
+                playerDrop();
             }
             draw();
             requestAnimationFrame(update);
