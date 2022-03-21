@@ -12,6 +12,13 @@ export const useTetris = (drawMatrix) => {
 
     const pieces = "ILJSZOT";
 
+    const playerReset = () => {
+        player.pos.y = 0;
+        player.matrix = createPiece(pieces[Math.floor(pieces.length * Math.random())]);
+        player.pos.x = Math.floor(arena[0].length /2) - Math.floor(player.matrix[0].length /2);
+    }
+
+
     const createPiece = (type) => {
         if (type === 'I') {
             return [
@@ -73,6 +80,7 @@ export const useTetris = (drawMatrix) => {
     }
 
     const playerRotate = (player, dir) => {
+        const originalPos = player.pos.x;
         rotate(player.matrix, dir);
         let offset = 1;
         while(collide(arena, player)){
@@ -80,6 +88,7 @@ export const useTetris = (drawMatrix) => {
             offset = -(offset +(offset > 0 ? 1 : -1));
             if (offset > player.matrix[0].length) {
                 rotate(player.matrix, -dir);
+                player.pos.x = originalPos;
                 return;
             }
         }
@@ -137,7 +146,7 @@ export const useTetris = (drawMatrix) => {
         if (collide(arena, player)){
             player.pos.y--;
             merge(arena, player);
-            player.pos.y = 0;
+            playerReset();
         }
         dropCounter = 0;
     }
@@ -148,7 +157,7 @@ export const useTetris = (drawMatrix) => {
         }
         player.pos.y--;
         merge(arena, player);
-        player.pos.y = 0;
+        playerReset();
         dropCounter = 0;
     }
 
