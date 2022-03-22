@@ -12,10 +12,26 @@ export const useTetris = (drawMatrix) => {
 
     const pieces = "ILJSZOT";
 
+    const arenaSweep = () => {
+        outer: for (let y = arena.length - 1; y > 0; --y) {
+            for (let x = 0; x < arena[y].length; ++x) {
+                if (arena[y][x] === 0) {
+                    continue outer;
+                }
+            }
+            const row = arena.splice(y, 1)[0].fill(0);
+            arena.unshift(row);
+            ++y;
+            
+
+        }
+
+    }
+
     const playerReset = () => {
         player.pos.y = 0;
         player.matrix = createPiece(pieces[Math.floor(pieces.length * Math.random())]);
-        player.pos.x = Math.floor(arena[0].length /2) - Math.floor(player.matrix[0].length /2);
+        player.pos.x = Math.floor(arena[0].length / 2) - Math.floor(player.matrix[0].length / 2);
     }
 
 
@@ -71,8 +87,8 @@ export const useTetris = (drawMatrix) => {
             for (let x = 0; x < m[y].length; x++) {
                 if (m[y][x] !== 0 &&
                     (arena[y + o.y] &&
-                    arena[y + o.y][x + o.x]) !== 0) {
-                        return true;
+                        arena[y + o.y][x + o.x]) !== 0) {
+                    return true;
                 }
             }
         }
@@ -83,9 +99,9 @@ export const useTetris = (drawMatrix) => {
         const originalPos = player.pos.x;
         rotate(player.matrix, dir);
         let offset = 1;
-        while(collide(arena, player)){
+        while (collide(arena, player)) {
             player.pos.x += offset;
-            offset = -(offset +(offset > 0 ? 1 : -1));
+            offset = -(offset + (offset > 0 ? 1 : -1));
             if (offset > player.matrix[0].length) {
                 rotate(player.matrix, -dir);
                 player.pos.x = originalPos;
@@ -93,21 +109,23 @@ export const useTetris = (drawMatrix) => {
             }
         }
     }
-    
+
+
+
     const rotate = (m, dir) => {
-        for (let y = 0; y < m.length; y++){
-            for(let x = 0; x < y; x++){
+        for (let y = 0; y < m.length; y++) {
+            for (let x = 0; x < y; x++) {
                 [
                     m[x][y],
                     m[y][x],
                 ] =
-                [
-                    m[y][x],
-                    m[x][y],
-                ];
+                    [
+                        m[y][x],
+                        m[x][y],
+                    ];
             }
         }
-        if (dir > 0){
+        if (dir > 0) {
             m.forEach(row => row.reverse());
         } else {
             m.reverse();
@@ -141,29 +159,32 @@ export const useTetris = (drawMatrix) => {
         matrix: createPiece(pieces[Math.floor(pieces.length * Math.random())]),
     }
 
-    function playerDrop(){
+    function playerDrop() {
         player.pos.y++;
-        if (collide(arena, player)){
+        if (collide(arena, player)) {
             player.pos.y--;
             merge(arena, player);
             playerReset();
+            arenaSweep();
+            
         }
         dropCounter = 0;
     }
 
-    function playerHardDrop(){
-        while(!collide(arena, player)){
+    function playerHardDrop() {
+        while (!collide(arena, player)) {
             player.pos.y++;
         }
         player.pos.y--;
         merge(arena, player);
         playerReset();
+        arenaSweep();
         dropCounter = 0;
     }
 
-    function movePlayer(dir){
+    function movePlayer(dir) {
         player.pos.x += dir;
-        if (collide(arena, player)){
+        if (collide(arena, player)) {
             player.pos.x -= dir;
         }
     }
@@ -197,8 +218,6 @@ export const useTetris = (drawMatrix) => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
-        context.fillStyle = '#000';
-        context.fillRect(0, 0, 240, 400);
 
 
         context.scale(20, 20);
@@ -207,7 +226,7 @@ export const useTetris = (drawMatrix) => {
         function draw() {
             context.fillStyle = '#000';
             context.fillRect(0, 0, 240, 400);
-            drawMatrix(context, arena, {x: 0, y: 0});
+            drawMatrix(context, arena, { x: 0, y: 0 });
             drawMatrix(context, player.matrix, player.pos);
         }
 
