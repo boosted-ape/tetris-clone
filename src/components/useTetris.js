@@ -13,6 +13,8 @@ export const useTetris = (drawMatrix) => {
     const pieces = "ILJSZOT";
 
     const arenaSweep = () => {
+        let rowCount = 0;
+        let increment = 0;
         outer: for (let y = arena.length - 1; y > 0; --y) {
             for (let x = 0; x < arena[y].length; ++x) {
                 if (arena[y][x] === 0) {
@@ -22,8 +24,13 @@ export const useTetris = (drawMatrix) => {
             const row = arena.splice(y, 1)[0].fill(0);
             arena.unshift(row);
             ++y;
+            ++rowCount;
             
-
+        }
+        console.log(rowCount);
+        for (rowCount; rowCount > 0 ; rowCount--){
+            player.score += (rowCount + increment) * 100;
+            increment++;
         }
 
     }
@@ -32,6 +39,12 @@ export const useTetris = (drawMatrix) => {
         player.pos.y = 0;
         player.matrix = createPiece(pieces[Math.floor(pieces.length * Math.random())]);
         player.pos.x = Math.floor(arena[0].length / 2) - Math.floor(player.matrix[0].length / 2);
+
+        if(collide(arena, player)){
+            arena.forEach(row => row.fill(0));
+            console.log(player.score);
+            player.score = 0;
+        }
     }
 
 
@@ -157,6 +170,7 @@ export const useTetris = (drawMatrix) => {
     const player = {
         pos: { x: 5, y: 5 },
         matrix: createPiece(pieces[Math.floor(pieces.length * Math.random())]),
+        score: 0,
     }
 
     function playerDrop() {
