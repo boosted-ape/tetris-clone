@@ -1,7 +1,8 @@
 import { getValue } from '@testing-library/user-event/dist/utils';
 import React from 'react';
 
-import Tetris from './components/Tetris'
+import Tetris from './components/Tetris';
+import { StyledTetris, StyledTetrisWrapper } from './components/styles/StyledTetris';
 
 const App = () => {
 
@@ -14,7 +15,7 @@ const App = () => {
     '#FF8E0D',
     '#FFE138',
     '#3877FF',
-];
+  ];
 
   function drawMatrix(context, matrix, offset) {
     matrix.forEach((row, y) => {
@@ -30,7 +31,12 @@ const App = () => {
 
   return (
     <div className="App">
-      <Tetris draw={drawMatrix} />
+      <StyledTetrisWrapper>
+        <StyledTetris>
+          <Tetris draw={drawMatrix} />
+          <Tetris draw={drawMatrix} />
+        </StyledTetris>
+      </StyledTetrisWrapper>
     </div>);
 }
 export default App;
