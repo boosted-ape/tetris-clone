@@ -1,14 +1,27 @@
+import { getValue } from '@testing-library/user-event/dist/utils';
 import React from 'react';
 
-import Tetris from './components/Tetris'
+import Tetris from './components/Tetris';
+import { StyledTetris, StyledTetrisWrapper } from './components/styles/StyledTetris';
 
 const App = () => {
+
+  const colors = [
+    null,
+    '#FF0D72',
+    '#0DC2FF',
+    '#0DFF72',
+    '#F538FF',
+    '#FF8E0D',
+    '#FFE138',
+    '#3877FF',
+  ];
 
   function drawMatrix(context, matrix, offset) {
     matrix.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value !== 0) {
-          context.fillStyle = 'red';
+          context.fillStyle = colors[value];
           context.fillRect(x + offset.x, y + offset.y, 1, 1);
         }
       });
@@ -18,7 +31,12 @@ const App = () => {
 
   return (
     <div className="App">
-      <Tetris draw={drawMatrix} />
+      <StyledTetrisWrapper>
+        <StyledTetris>
+          <Tetris draw={drawMatrix} />
+          <Tetris draw={drawMatrix} />
+        </StyledTetris>
+      </StyledTetrisWrapper>
     </div>);
 }
 export default App;
