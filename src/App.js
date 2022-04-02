@@ -33,8 +33,8 @@ const App = () => {
     <div className="App">
       <StyledTetrisWrapper>
         <StyledTetris>
-          <Tetris draw={drawMatrix} />
-          <Tetris draw={drawMatrix} />
+          <Tetris drawMatrix={drawMatrix} />
+          <Tetris drawMatrix={drawMatrix} />
         </StyledTetris>
       </StyledTetrisWrapper>
     </div>);
