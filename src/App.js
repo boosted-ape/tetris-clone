@@ -34,7 +34,6 @@ const App = () => {
       <StyledTetrisWrapper>
         <StyledTetris>
           <Tetris drawMatrix={drawMatrix} />
-          <Tetris drawMatrix={drawMatrix} />
         </StyledTetris>
       </StyledTetrisWrapper>
     </div>);

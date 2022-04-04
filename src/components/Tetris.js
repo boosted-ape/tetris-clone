@@ -1,56 +1,20 @@
 import React, {useState, useRef, useEffect} from "react";
 
+import Score from "./Score";
 
 
-const Tetris = (props) => {
+const Tetris = React.memo((props) => {
 
     const { drawMatrix, ...rest } = props;
 
     let event = null;
 
 
-    const matrix = [
-        [0, 0, 0],
-        [1, 1, 1],
-        [0, 1, 0],
-    ];
+
 
     const pieces = "ILJSZOT";
 
-    const arenaSweep = () => {
-        let rowCount = 0;
-        let increment = 0;
-        outer: for (let y = arena.length - 1; y > 0; --y) {
-            for (let x = 0; x < arena[y].length; ++x) {
-                if (arena[y][x] === 0) {
-                    continue outer;
-                }
-            }
-            const row = arena.splice(y, 1)[0].fill(0);
-            arena.unshift(row);
-            ++y;
-            ++rowCount;
-            
-        }
-        console.log(rowCount);
-        for (rowCount; rowCount > 0 ; rowCount--){
-            player.score += (rowCount + increment) * 100;
-            increment++;
-        }
 
-    }
-
-    const playerReset = () => {
-        player.pos.y = 0;
-        player.matrix = createPiece(pieces[Math.floor(pieces.length * Math.random())]);
-        player.pos.x = Math.floor(arena[0].length / 2) - Math.floor(player.matrix[0].length / 2);
-
-        if(collide(arena, player)){
-            arena.forEach(row => row.fill(0));
-            console.log(player.score);
-            player.score = 0;
-        }
-    }
 
 
     const createPiece = (type) => {
@@ -96,6 +60,48 @@ const Tetris = (props) => {
                 [7, 7, 7],
                 [0, 0, 0],
             ];
+        }
+    }
+
+    const player = {
+        pos: { x: 5, y: 5 },
+        matrix: createPiece(pieces[Math.floor(pieces.length * Math.random())]),
+        score: 0,
+    };
+
+    const arenaSweep = () => {
+        let rowCount = 0;
+        let increment = 0;
+        outer: for (let y = arena.length - 1; y > 0; --y) {
+            for (let x = 0; x < arena[y].length; ++x) {
+                if (arena[y][x] === 0) {
+                    continue outer;
+                }
+            }
+            const row = arena.splice(y, 1)[0].fill(0);
+            arena.unshift(row);
+            setArena(arena);
+            ++y;
+            ++rowCount;
+            
+        }
+        for (rowCount; rowCount > 0 ; rowCount--){
+            player.score += (rowCount + increment) * 100;
+            increment++;
+        }
+
+    }
+
+    const playerReset = () => {
+        player.pos.y = 0;
+        player.matrix = createPiece(pieces[Math.floor(pieces.length * Math.random())]);
+        player.pos.x = Math.floor(arena[0].length / 2) - Math.floor(player.matrix[0].length / 2);
+
+        if(collide(arena, player)){
+            arena.forEach(row => row.fill(0));
+            setArena(arena);
+            console.log(player.score);
+            player.score = 0;
         }
     }
 
@@ -159,7 +165,7 @@ const Tetris = (props) => {
         return matrix;
     }
 
-    const arena = createMatrix(12, 20);
+    const [arena, setArena] = useState(createMatrix(12, 20));
 
 
     const merge = (arena, player) => {
@@ -167,16 +173,14 @@ const Tetris = (props) => {
             row.forEach((value, x) => {
                 if (value !== 0) {
                     arena[y + player.pos.y][x + player.pos.x] = value;
+                    setArena(arena);
                 }
             })
         });
     }
 
-    const player = {
-        pos: { x: 5, y: 5 },
-        matrix: createPiece(pieces[Math.floor(pieces.length * Math.random())]),
-        score: 0,
-    }
+
+
 
     function playerDrop() {
         player.pos.y++;
@@ -228,15 +232,19 @@ const Tetris = (props) => {
             playerHardDrop();
         }
     }
+    
     let lastTime = 0;
     let dropInterval = 1000;
     let dropCounter = 0;
 
     const canvasRef = useRef(null);
+    const scoreRef = useRef(null);
+
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
+
 
 
 
@@ -264,14 +272,18 @@ const Tetris = (props) => {
         }
 
         update();
+        
     });
-    
     return (
-        <canvas ref={canvasRef}       
-        tabIndex="0" 
-        onKeyDown={(e) => move(e)}
-        width="240" height="400" />
+        <div>
+            <p ref={scoreRef}/>
+            <canvas ref={canvasRef}       
+            tabIndex="0" 
+            onKeyDown={(e) => move(e)}
+            width="240" height="400" />
+        </div>
     );
-}
+
+});
 
 export default Tetris;
