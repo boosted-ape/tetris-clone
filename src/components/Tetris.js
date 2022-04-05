@@ -1,7 +1,5 @@
-import React, {useState, useRef, useEffect} from "react";
-
-import Score from "./Score";
-
+import React, { useState, useRef, useEffect } from "react";
+import ReactDOM from 'react-dom';
 
 const Tetris = React.memo((props) => {
 
@@ -9,13 +7,7 @@ const Tetris = React.memo((props) => {
 
     let event = null;
 
-
-
-
     const pieces = "ILJSZOT";
-
-
-
 
     const createPiece = (type) => {
         if (type === 'I') {
@@ -83,13 +75,12 @@ const Tetris = React.memo((props) => {
             setArena(arena);
             ++y;
             ++rowCount;
-            
+
         }
-        for (rowCount; rowCount > 0 ; rowCount--){
+        for (rowCount; rowCount > 0; rowCount--) {
             player.score += (rowCount + increment) * 100;
             increment++;
         }
-
     }
 
     const playerReset = () => {
@@ -97,7 +88,7 @@ const Tetris = React.memo((props) => {
         player.matrix = createPiece(pieces[Math.floor(pieces.length * Math.random())]);
         player.pos.x = Math.floor(arena[0].length / 2) - Math.floor(player.matrix[0].length / 2);
 
-        if(collide(arena, player)){
+        if (collide(arena, player)) {
             arena.forEach(row => row.fill(0));
             setArena(arena);
             console.log(player.score);
@@ -134,8 +125,6 @@ const Tetris = React.memo((props) => {
         }
     }
 
-
-
     const rotate = (m, dir) => {
         for (let y = 0; y < m.length; y++) {
             for (let x = 0; x < y; x++) {
@@ -167,7 +156,6 @@ const Tetris = React.memo((props) => {
 
     const [arena, setArena] = useState(createMatrix(12, 20));
 
-
     const merge = (arena, player) => {
         player.matrix.forEach((row, y) => {
             row.forEach((value, x) => {
@@ -179,9 +167,6 @@ const Tetris = React.memo((props) => {
         });
     }
 
-
-
-
     function playerDrop() {
         player.pos.y++;
         if (collide(arena, player)) {
@@ -189,7 +174,7 @@ const Tetris = React.memo((props) => {
             merge(arena, player);
             playerReset();
             arenaSweep();
-            
+
         }
         dropCounter = 0;
     }
@@ -232,24 +217,18 @@ const Tetris = React.memo((props) => {
             playerHardDrop();
         }
     }
-    
+
     let lastTime = 0;
     let dropInterval = 1000;
     let dropCounter = 0;
 
     const canvasRef = useRef(null);
-    const scoreRef = useRef(null);
-
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
-
-
-
         context.scale(20, 20);
-
 
         function draw() {
             context.fillStyle = '#000';
@@ -257,8 +236,6 @@ const Tetris = React.memo((props) => {
             drawMatrix(context, arena, { x: 0, y: 0 });
             drawMatrix(context, player.matrix, player.pos);
         }
-
-
 
         function update(time = 0) {
             const deltaTime = time - lastTime;
@@ -268,22 +245,25 @@ const Tetris = React.memo((props) => {
                 playerDrop();
             }
             draw();
+            ReactDOM.render(<p>{player.score}</p>, document.getElementById("score"));
             requestAnimationFrame(update);
         }
 
         update();
-        
+
     });
+
     return (
         <div>
-            <p ref={scoreRef}/>
-            <canvas ref={canvasRef}       
-            tabIndex="0" 
-            onKeyDown={(e) => move(e)}
-            width="240" height="400" />
+            <div id="score" />
+            <div>
+                <canvas ref={canvasRef}
+                    tabIndex="0"
+                    onKeyDown={(e) => move(e)}
+                    width="240" height="400" />
+            </div>
         </div>
     );
-
 });
 
 export default Tetris;
