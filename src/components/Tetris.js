@@ -56,7 +56,7 @@ const Tetris = React.memo((props) => {
     }
 
     const player = {
-        pos: { x: 5, y: 5 },
+        pos: { x: 6 - Math.floor(3 / 2), y: 0 },
         matrix: createPiece(pieces[Math.floor(pieces.length * Math.random())]),
         score: 0,
     };
@@ -72,7 +72,6 @@ const Tetris = React.memo((props) => {
             }
             const row = arena.splice(y, 1)[0].fill(0);
             arena.unshift(row);
-            setArena(arena);
             ++y;
             ++rowCount;
 
@@ -90,7 +89,6 @@ const Tetris = React.memo((props) => {
 
         if (collide(arena, player)) {
             arena.forEach(row => row.fill(0));
-            setArena(arena);
             console.log(player.score);
             player.score = 0;
         }
@@ -154,14 +152,13 @@ const Tetris = React.memo((props) => {
         return matrix;
     }
 
-    const [arena, setArena] = useState(createMatrix(12, 20));
+    const arena = createMatrix(12, 20);
 
     const merge = (arena, player) => {
         player.matrix.forEach((row, y) => {
             row.forEach((value, x) => {
                 if (value !== 0) {
                     arena[y + player.pos.y][x + player.pos.x] = value;
-                    setArena(arena);
                 }
             })
         });
