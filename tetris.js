@@ -5,6 +5,7 @@ const context = canvas.getContext('2d');
 
 context.scale(20, 20);
 
+
 function arenaSweep() {
     let rowCount = 1;
     outer: for (let y = arena.length - 1; y > 0; --y) {
@@ -21,8 +22,10 @@ function arenaSweep() {
         player.score += rowCount * 10;
         rowCount *= 2;
     }
-    //console.log(getAggregateHeight(arena));
     console.log(getBumpiness(arena));
+    return rowCount
+    //console.log(getAggregateHeight(arena));
+
 }
 
 function collide(arena, player) {
@@ -96,6 +99,32 @@ function getBumpiness(arena){
         bumpiness += Math.abs(heights[i-1] - heights[i])
     }
     return bumpiness;
+}
+
+function calculateMoves(arena){
+    
+}
+
+//use on copies of arena only
+function getFitnessScore(arena){
+    let score = WEIGHT_LINE_CLEARED * arenaSweep(arena);
+    score += WEIGHT_AGGREGATE_HEIGHT * getAggregateHeight(arena);
+    score += WEIGHT_HOLES * getHoleCount(arena);
+    score += WEIGHT_BUMPINESS * getBumpiness(arena);
+    return score;
+}
+
+function getFutureBoard(arena, player){
+    const futureArena = arena;
+    const futurePlayer = player;
+
+    while (!collide(futureArena, futurePlayer)) {
+        futurePlayer.pos.y++;
+    }
+    futurePlayer.pos.y--;
+    merge(futureArena, futurePlayer);
+    return futureArena;
+
 }
 
 function createMatrix(w, h) {
@@ -203,7 +232,7 @@ function rotate(matrix, dir) {
     }
 }
 
-function playerDrop() {
+function playerDrop(arena, player) {
     player.pos.y++;
     if (collide(arena, player)) {
         player.pos.y--;
@@ -215,7 +244,7 @@ function playerDrop() {
     dropCounter = 0;
 }
 
-function playerHardDrop() {
+function playerHardDrop(arena, player) {
     while (!collide(arena, player)) {
         player.pos.y++;
     }
@@ -271,7 +300,7 @@ function update(time = 0) {
 
     dropCounter += deltaTime;
     if (dropCounter > dropInterval) {
-        playerDrop();
+        playerDrop(arena, player);
     }
 
     lastTime = time;
@@ -290,13 +319,13 @@ document.addEventListener('keydown', event => {
     } else if (event.key === "ArrowRight") {
         playerMove(1);
     } else if (event.key === "ArrowDown") {
-        playerDrop();
+        playerDrop(arena, player);
     } else if (event.key === "q") {
         playerRotate(-1);
     } else if (event.key === "w") {
         playerRotate(1);
     } else if (event.key === " ") {
-        playerHardDrop();
+        playerHardDrop(arena, player);
     }
 });
 
