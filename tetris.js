@@ -1,353 +1,61 @@
+class Tetris {
+    constructor(element) {
+        this.element = element;
+        this.canvas = element.querySelector('canvas');
+        this.context = this.canvas.getContext('2d');
+        this.context.scale(20, 20);
 
+        this.arena = new Arena(12, 20);
+        this.player = new Player(this);
 
-const canvas = document.getElementById('tetris');
-const context = canvas.getContext('2d');
+        this.colors = [
+            null,
+            '#FF0D72',
+            '#0DC2FF',
+            '#0DFF72',
+            '#F538FF',
+            '#FF8E0D',
+            '#FFE138',
+            '#3877FF',
+        ];
 
-context.scale(20, 20);
+        let lastTime = 0;
+        const update = (time = 0) => {
+            const deltaTime = time - lastTime;
+            lastTime = time;
 
+            this.player.update(deltaTime);
 
-function arenaSweep() {
-    let rowCount = 1;
-    outer: for (let y = arena.length - 1; y > 0; --y) {
-        for (let x = 0; x < arena[y].length; ++x) {
-            if (arena[y][x] === 0) {
-                continue outer;
-            }
-        }
+            this.draw();
+            requestAnimationFrame(update);
+        };
+        update();
 
-        const row = arena.splice(y, 1)[0].fill(0);
-        arena.unshift(row);
-        ++y;
-
-        player.score += rowCount * 10;
-        rowCount *= 2;
+        this.updateScore(0);
     }
-    console.log(getBumpiness(arena));
-    return rowCount
-    //console.log(getAggregateHeight(arena));
 
-}
+    draw() {
+        this.context.fillStyle = '#000';
+        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-function collide(arena, player) {
-    const m = player.matrix;
-    const o = player.pos;
-    for (let y = 0; y < m.length; ++y) {
-        for (let x = 0; x < m[y].length; ++x) {
-            if (m[y][x] !== 0 &&
-                (arena[y + o.y] &&
-                    arena[y + o.y][x + o.x]) !== 0) {
-                return true;
-            }
-        }
+        this.drawMatrix(this.arena.matrix, { x: 0, y: 0 });
+        this.drawMatrix(this.player.matrix, this.player.pos);
     }
-    return false;
-}
 
-function getAggregateHeight(arena) {
-
-    let heights = getColHeight(arena)
-    var aggregateHeight = heights.reduce((a, b) => a + b, 0);
-    return aggregateHeight;
-}
-
-function getColHeight(arena){
-    let heights = Array(12).fill(0);
-    let cols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-
-    for (let [neg_height, row] of arena.entries()) {
-        inner: for (let [i, val] of row.entries()) {
-            if (val === 0 || !(cols.includes(i))) {
-                continue inner;
-            }
-            heights[i] = 20 - neg_height;
-            for (var j = 0; j < cols.length; j++) {
-                if (cols[j] === i) {
-                    cols.splice(j, 1);
+    drawMatrix(matrix, offset) {
+        matrix.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if (value !== 0) {
+                    this.context.fillStyle = this.colors[value];
+                    this.context.fillRect(x + offset.x,
+                        y + offset.y,
+                        1, 1);
                 }
-            }
-        }
-    }
-
-    return heights;
-}
-
-function getHoleCount(arena) {
-    let holes = 0;
-    let cols = Array(12).fill(0);
-
-    for (let [neg_height, row] of arena.entries()) {
-        let height = 20 - neg_height
-        for (let [i, val] of row.entries()) {
-            if (val === 0 && cols[i] > height) {
-                holes += 1;
-                continue;
-            }
-            if (val !== 0 && cols[i] == 0) {
-                cols[i] = height;
-            }
-        }
-    }
-
-    return holes;
-}
-
-function getBumpiness(arena){
-    let bumpiness = 0;
-    let heights = getColHeight(arena);
-
-    for( var i = 1; i < heights.length; i++){
-        bumpiness += Math.abs(heights[i-1] - heights[i])
-    }
-    return bumpiness;
-}
-
-function calculateMoves(arena){
-    
-}
-
-//use on copies of arena only
-function getFitnessScore(arena){
-    let score = WEIGHT_LINE_CLEARED * arenaSweep(arena);
-    score += WEIGHT_AGGREGATE_HEIGHT * getAggregateHeight(arena);
-    score += WEIGHT_HOLES * getHoleCount(arena);
-    score += WEIGHT_BUMPINESS * getBumpiness(arena);
-    return score;
-}
-
-function getFutureBoard(arena, player){
-    const futureArena = arena;
-    const futurePlayer = player;
-
-    while (!collide(futureArena, futurePlayer)) {
-        futurePlayer.pos.y++;
-    }
-    futurePlayer.pos.y--;
-    merge(futureArena, futurePlayer);
-    return futureArena;
-
-}
-
-function createMatrix(w, h) {
-    const matrix = [];
-    while (h--) {
-        matrix.push(new Array(w).fill(0));
-    }
-    return matrix;
-}
-
-function createPiece(type) {
-    if (type === 'I') {
-        return [
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-        ];
-    } else if (type === 'L') {
-        return [
-            [0, 2, 0],
-            [0, 2, 0],
-            [0, 2, 2],
-        ];
-    } else if (type === 'J') {
-        return [
-            [0, 3, 0],
-            [0, 3, 0],
-            [3, 3, 0],
-        ];
-    } else if (type === 'O') {
-        return [
-            [4, 4],
-            [4, 4],
-        ];
-    } else if (type === 'Z') {
-        return [
-            [5, 5, 0],
-            [0, 5, 5],
-            [0, 0, 0],
-        ];
-    } else if (type === 'S') {
-        return [
-            [0, 6, 6],
-            [6, 6, 0],
-            [0, 0, 0],
-        ];
-    } else if (type === 'T') {
-        return [
-            [0, 7, 0],
-            [7, 7, 7],
-            [0, 0, 0],
-        ];
-    }
-}
-
-function drawMatrix(matrix, offset) {
-    matrix.forEach((row, y) => {
-        row.forEach((value, x) => {
-            if (value !== 0) {
-                context.fillStyle = colors[value];
-                context.fillRect(x + offset.x,
-                    y + offset.y,
-                    1, 1);
-            }
+            });
         });
-    });
-}
-
-function draw() {
-    context.fillStyle = '#000';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    drawMatrix(arena, { x: 0, y: 0 });
-    drawMatrix(player.matrix, player.pos);
-}
-
-function merge(arena, player) {
-    player.matrix.forEach((row, y) => {
-        row.forEach((value, x) => {
-            if (value !== 0) {
-                arena[y + player.pos.y][x + player.pos.x] = value;
-            }
-        });
-    });
-}
-
-function rotate(matrix, dir) {
-    for (let y = 0; y < matrix.length; ++y) {
-        for (let x = 0; x < y; ++x) {
-            [
-                matrix[x][y],
-                matrix[y][x],
-            ] = [
-                    matrix[y][x],
-                    matrix[x][y],
-                ];
-        }
     }
 
-    if (dir > 0) {
-        matrix.forEach(row => row.reverse());
-    } else {
-        matrix.reverse();
+    updateScore(score) {
+        this.element.querySelector('.score').innerText = score;
     }
 }
-
-function playerDrop(arena, player) {
-    player.pos.y++;
-    if (collide(arena, player)) {
-        player.pos.y--;
-        merge(arena, player);
-        playerReset();
-        arenaSweep();
-        updateScore();
-    }
-    dropCounter = 0;
-}
-
-function playerHardDrop(arena, player) {
-    while (!collide(arena, player)) {
-        player.pos.y++;
-    }
-    player.pos.y--;
-    merge(arena, player);
-    playerReset();
-    arenaSweep();
-    updateScore();
-    dropCounter = 0;
-}
-
-function playerMove(offset) {
-    player.pos.x += offset;
-    if (collide(arena, player)) {
-        player.pos.x -= offset;
-    }
-}
-
-function playerReset() {
-    const pieces = 'TJLOSZI';
-    player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
-    player.pos.y = 0;
-    player.pos.x = (arena[0].length / 2 | 0) -
-        (player.matrix[0].length / 2 | 0);
-    if (collide(arena, player)) {
-        arena.forEach(row => row.fill(0));
-        player.score = 0;
-        updateScore();
-    }
-}
-
-function playerRotate(dir) {
-    const pos = player.pos.x;
-    let offset = 1;
-    rotate(player.matrix, dir);
-    while (collide(arena, player)) {
-        player.pos.x += offset;
-        offset = -(offset + (offset > 0 ? 1 : -1));
-        if (offset > player.matrix[0].length) {
-            rotate(player.matrix, -dir);
-            player.pos.x = pos;
-            return;
-        }
-    }
-}
-
-let dropCounter = 0;
-let dropInterval = 1000;
-
-let lastTime = 0;
-function update(time = 0) {
-    const deltaTime = time - lastTime;
-
-    dropCounter += deltaTime;
-    if (dropCounter > dropInterval) {
-        playerDrop(arena, player);
-    }
-
-    lastTime = time;
-
-    draw();
-    requestAnimationFrame(update);
-}
-
-function updateScore() {
-    document.getElementById('score').innerText = player.score;
-}
-
-document.addEventListener('keydown', event => {
-    if (event.key === "ArrowLeft") {
-        playerMove(-1);
-    } else if (event.key === "ArrowRight") {
-        playerMove(1);
-    } else if (event.key === "ArrowDown") {
-        playerDrop(arena, player);
-    } else if (event.key === "q") {
-        playerRotate(-1);
-    } else if (event.key === "w") {
-        playerRotate(1);
-    } else if (event.key === " ") {
-        playerHardDrop(arena, player);
-    }
-});
-
-const colors = [
-    null,
-    '#FF0D72',
-    '#0DC2FF',
-    '#0DFF72',
-    '#F538FF',
-    '#FF8E0D',
-    '#FFE138',
-    '#3877FF',
-];
-
-const arena = createMatrix(12, 20);
-
-const player = {
-    pos: { x: 0, y: 0 },
-    matrix: null,
-    score: 0,
-};
-
-playerReset();
-updateScore();
-update();
