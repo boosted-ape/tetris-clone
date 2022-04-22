@@ -58,14 +58,23 @@ function getBumpiness(arena) {
     return bumpiness;
 }
 
-function calculateMoves(arena) {
+function calculateMoves(arena,player) {
     var best_fitness = -9999;
     var best_tile_index = -1;
-    var best_rotationi = -1;
+    var best_rotation = -1;
     var best_x = -1;
 
     for( var rotationCount = 0; rotationCount < 4; rotationCount++){
-        
+        for( var x = 0; x < 12; x++){
+            var new_board = getFutureBoard(arena, player);
+            var fitness = getFitnessScore(new_board);
+            if(fitness > best_fitness){
+                best_fitness = fitness;
+                best_rotation = rotationCount;
+                best_x = x;
+            }
+        }
+        player.rotate()
     }
 }
 
@@ -87,7 +96,7 @@ function getFutureBoard(arena, player) {
     }
     futurePlayer.pos.y--;
     merge(futureArena, futurePlayer);
-    return futureArena;
+    return [futureArena];
 
 }
 
